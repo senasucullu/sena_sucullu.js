@@ -51,7 +51,13 @@
 
  const buildProducts = (products) => {
   return products.map(product => {
+    const hasDiscount = product.price < product.original_price;
+    const discountPercent = hasDiscount
+      ? Math.round(100 - (product.price / product.original_price) * 100)
+      : 0;
+   
     return `
+      <div class="container">
       <div class="product-item">
         <a class="product-item__img" href="${product.url}" target="_blank">
           <img src="${product.img}" alt="${product.name}" />
@@ -60,11 +66,24 @@
           <h2 class="product-item__brand">
             <b>${product.brand} - </b><span>${product.name}</span>
           </h2>
+        </div>
           <div class="product-item__price">
-            <span class="product-price">${product.price.toFixed(2)} TL</span>
+            ${
+              hasDiscount
+                ? `
+              <div class="d-flex align-items-center">
+                <span class="product-item__old-price">${product.original_price.toFixed(2)} TL</span>
+                <span class="product-item__percent">%${discountPercent} <i class="icon icon-decrease"></i></span>
+              </div>
+              <span class="product-item__new-price">${product.price.toFixed(2)} TL</span>
+              `
+                : 
+                `<span class="product-item__new-price">${product.price.toFixed(2)} TL</span>`
+            }
           </div>
           <button class="close-btn">Sepete Ekle</button>
-        </div>
+        
+      </div>
       </div>
     `;
   }).join("");
@@ -155,21 +174,28 @@
         --cx-color-light: #d7d7d7;
         padding: 5px 0 15px;
 }
-      .product-item__price {
-        position: relative;
-        display: flex;
-        justify-content: flex-start;
-        flex-direction: column;
-        height: auto;
-        margin-bottom: 10px;
-      }
-      
-      .product-price {
-        font-weight: bold;
-        color: #7d7d7d;
-        font-size: 16px;
-      }
-      
+      .product-item__old-price {
+          font-size: 1.4rem;
+          font-weight: 500;
+          text-decoration: line-through;
+  }
+
+      .product-item__percent {
+          color: #00a365;
+          font-size: 18px;
+          font-weight: 700;
+          display: inline-flex;
+          justify-content: center;
+          margin-left: 10px;
+  }
+
+      .product-item__new-price {
+          display: block;
+          width: 100%;
+          font-size: 2.2rem;
+          font-weight: 600;
+  }
+
       .close-btn {
         width: 100%;
         padding: 15px 20px;
