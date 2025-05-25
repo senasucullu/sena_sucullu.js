@@ -1,15 +1,34 @@
 (() => {
-  const init = () => {
+  const init =async  () => {
     if (!window.location.href.includes('e-bebek.com') || window.location.pathname !== '/') {
       console.log('wrong page');
       return;
     }
-    buildHTML();
+    const productData = await getProductData();
+    buildHTML(productData);
     buildCSS();
     setEvents();
   };
+  
+  const getProductData = async () => {
+  const localData = localStorage.getItem("ProductsData");
+  if (localData) {
+    return JSON.parse(localData);
+  }
 
-  const buildHTML = () => {
+  try {
+    const response = await fetch("https://gist.githubusercontent.com/sevindi/8bcbde9f02c1d4abe112809c974e1f49/raw/9bf93b58df623a9b16f1db721cd0a7a539296cf0/products.json");
+    const data = await response.json();
+    localStorage.setItem("ProductsData", JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error("Ürünler alınamadı:", error);
+    return [];
+  }
+};
+
+
+  const buildHTML = (products) => {
     const title = document.createElement("h2");
     title.innerText = "Beğenebileceğinizi düşündüklerimiz";
     title.className = "title-primary";
@@ -20,7 +39,7 @@
 
     const productWrapper = document.createElement("div");
     productWrapper.className = "product-wrapper"; 
-    productWrapper.innerHTML = buildProducts(); 
+    productWrapper.innerHTML = buildProducts(products); 
 
     container.appendChild(productWrapper);
 
@@ -30,34 +49,28 @@
     }
   };
 
-  const buildProducts = () => {
+ const buildProducts = (products) => {
+  return products.map(product => {
     return `
       <div class="product-item">
-        <div class="product-item__img">
-          <img src="https://cdn05.e-bebek.com/mnresize/300/300/media/p/organik-6li-agiz-mendili-24x24-cm_8682766103779_01.jpg" alt="Bebek Bezi">
-        </div>
+        <a class="product-item__img" href="${product.url}" target="_blank">
+          <img src="${product.img}" alt="${product.name}" />
+        </a>
         <div class="product-item-content">
-          <h3 class="product-title">Bebek Bezi 5 Beden</h3>
+          <h2 class="product-item__brand">
+            <b>${product.brand} - </b><span>${product.name}</span>
+          </h2>
           <div class="product-item__price">
-            <span class="product-price">1299,00 TL</span>
-          </div>
-          <button class="close-btn">Sepete Ekle</button>
-        </div>
-      </div>
-      <div class="product-item">
-        <div class="product-item__img">
-          <img src="https://cdn05.e-bebek.com/mnresize/300/300/media/p/organik-6li-agiz-mendili-24x24-cm_8682766103779_01.jpg" alt="Bebek Bezi">
-        </div>
-        <div class="product-item-content">
-          <h3 class="product-title">Bebek Bezi 5 Beden</h3>
-          <div class="product-item__price">
-            <span class="product-price">1299,00 TL</span>
+            <span class="product-price">${product.price.toFixed(2)} TL</span>
           </div>
           <button class="close-btn">Sepete Ekle</button>
         </div>
       </div>
     `;
-  };
+  }).join("");
+};
+
+
 
   const buildCSS = () => {
     const css = `
@@ -114,6 +127,12 @@
         height: auto;
         border-radius: 8px;
       }
+        .product-item__brand {
+       font-size: 1.2rem;
+       height: 42px;
+       overflow: hidden;
+       margin-bottom: 10px;
+}
       
       .product-item-content {
         padding: 0 10px 10px;
@@ -131,7 +150,11 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
       }
-      
+      .product-item-content .stars-wrapper {
+        --cx-color-primary: #fed100;
+        --cx-color-light: #d7d7d7;
+        padding: 5px 0 15px;
+}
       .product-item__price {
         position: relative;
         display: flex;
@@ -147,20 +170,20 @@
         font-size: 16px;
       }
       
-.close-btn {
-    width: 100%;
-    padding: 15px 20px;
-    border-radius: 37.5px;
-    background-color: #fff7ec;
-    color: #f28e00;
-    font-family: Poppins,"cursive";
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-top: 25px
+      .close-btn {
+        width: 100%;
+        padding: 15px 20px;
+        border-radius: 37.5px;
+        background-color: #fff7ec;
+        color: #f28e00;
+        font-family: Poppins,"cursive";
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-top: 25px
 }
 
-.close-btn:hover {
-    background-color: #fdeed9
+      .close-btn:hover {
+         background-color: #fdeed9
 }
       
       .banner__titles {
