@@ -51,16 +51,31 @@
 
  const buildProducts = (products) => {
   return products.map(product => {
+    
     const hasDiscount = product.price < product.original_price;
     const discountPercent = hasDiscount
       ? Math.round(100 - (product.price / product.original_price) * 100)
       : 0;
-   
+    
+    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    const isFavorite = favorites.includes(product.url);
+
     return `
       <div class="container">
       <div class="product-item">
         <a class="product-item__img" href="${product.url}" target="_blank">
-          <img src="${product.img}" alt="${product.name}" />
+          <div class="heart" data-url="${product.url}">
+        ${
+          isFavorite
+            ? `<img src="https://www.e-bebek.com/assets/svg/added-favorite.svg" alt="heart fill" class="heart-icon">`
+            : `
+              <img id="default-favorite" src="https://www.e-bebek.com/assets/svg/default-favorite.svg" alt="heart" class="heart-icon">
+              <img src="https://www.e-bebek.com/assets/svg/default-hover-favorite.svg" alt="heart" class="heart-icon hovered">
+          `
+  }
+      </div>
+
+        <img src="${product.img}" alt="${product.name}" />
         </a>
         <div class="product-item-content">
           <h2 class="product-item__brand">
@@ -174,6 +189,39 @@
         --cx-color-light: #d7d7d7;
         padding: 5px 0 15px;
 }
+      .heart {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        background-color: #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px 0 #00000024;
+        width: 50px;
+        height: 50px;
+        z-index: 10;
+}
+
+      .heart .heart-icon {
+        width: 25px;
+        height: 25px;
+        position: absolute;
+        top: 13px;
+        right: 12px;
+}
+
+      .heart .hovered {
+         display: none;
+}
+
+      .heart:hover .hovered {
+        display: block;
+}
+
+      .heart:hover #default-favorite {
+         display: none;
+}
+
       .product-item__old-price {
           font-size: 1.4rem;
           font-weight: 500;
@@ -250,7 +298,28 @@
   };
 
   const setEvents = () => {
-    // Şimdilik boş, sonradan eklenecek
+     document.querySelectorAll(".heart").forEach((heart) => {
+      heart.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const url = heart.getAttribute("data-url");
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+        const isFav = favorites.includes(url);
+
+        if (isFav) {
+          favorites = favorites.filter(item => item !== url);
+        } else {
+          favorites.push(url);
+        }
+
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+
+        
+        location.reload();
+      });
+    });
   };
 
   init();
