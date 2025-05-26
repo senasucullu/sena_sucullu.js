@@ -26,6 +26,8 @@
     return [];
   }
 };
+ 
+  let slideIndex = 0;
 
 
   const buildHTML = (products) => {
@@ -38,10 +40,42 @@
     container.appendChild(title);
 
     const productWrapper = document.createElement("div");
-    productWrapper.className = "product-wrapper"; 
+    productWrapper.className = "custom-product-wrapper"; 
     productWrapper.innerHTML = buildProducts(products); 
 
     container.appendChild(productWrapper);
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "custom-banner__wrapper";
+
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "swiper-prev";
+    prevBtn.setAttribute("aria-label", "Geri");
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "swiper-next";
+    nextBtn.setAttribute("aria-label", "İleri");
+
+    //anasayfada ilk olarak 5 ürün göster kaydırınca 1 ürün getir
+    prevBtn.addEventListener("click", () => {
+    if (slideIndex > 0) {
+      slideIndex--;
+      updateVisibleSlides(productWrapper, slideIndex);
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (slideIndex < products.length - 5) {
+      slideIndex++;
+      updateVisibleSlides(productWrapper, slideIndex);
+    }
+  });
+
+    wrapper.appendChild(prevBtn);
+    wrapper.appendChild(productWrapper);
+    wrapper.appendChild(nextBtn);
+    container.appendChild(wrapper);
+    updateVisibleSlides(productWrapper, slideIndex);
 
     const target = document.querySelector(".hero.banner");
     if (target) {
@@ -61,8 +95,8 @@
     const isFavorite = favorites.includes(product.url);
 
     return `
-      <div class="product-item">
-        <a class="product-item__img" href="${product.url}" target="_blank">
+      <div class="custom-product-item">
+        <a class="custom-product-item__img" href="${product.url}" target="_blank">
           <div class="heart" data-url="${product.url}">
         ${
           isFavorite
@@ -76,8 +110,8 @@
 
         <img src="${product.img}" alt="${product.name}" />
         </a>
-        <div class="product-item-content">
-          <h2 class="product-item__brand">
+        <div class="custom-product-item-content">
+          <h2 class="custom-product-item__brand">
             <b>${product.brand} - </b><span>${product.name}</span>
           </h2>
           <div class="stars-wrapper">
@@ -90,20 +124,23 @@
         </div>
 
 
-          <div class="product-item__price">
-            ${
-              hasDiscount
-                ? `
-              <div class="d-flex align-items-center">
-                <span class="product-item__old-price">${product.original_price.toFixed(2)} TL</span>
-                <span class="product-item__percent">%${discountPercent} <i class="icon icon-decrease"></i></span>
-              </div>
-              <span class="product-item__new-price">${product.price.toFixed(2)} TL</span>
-              `
-                : 
-                `<span class="product-item__new-price">${product.price.toFixed(2)} TL</span>`
-            }
+            ${hasDiscount
+  ? `
+          <div class="custom-price-discount">
+            <span class="custom-product-item__old-price">${product.original_price.toFixed(2)} TL</span>
+            <span class="custom-product-item__percent">%${discountPercent} <i class="percent_icon"></i></span>
           </div>
+          <span class="custom-product-item__price custom-product-item__price--new-price">${product.price.toFixed(2)} TL</span>
+        `
+        : `
+          <div class="custom-price-discount" style="visibility: hidden;">
+            <span class="custom-product-item__old-price">-</span>
+            <span class="">-</span>
+          </div>
+          <span class="custom-product-item__price">${product.price.toFixed(2)} TL</span>
+        `
+      }
+          
           <button class="close-btn">Sepete Ekle</button>
         
       </div>
@@ -120,56 +157,64 @@ document.head.appendChild(fontAwesome);
   const buildCSS = () => {
     const css = `
 
-      .banner__wrapper {
+      .custom-banner__wrapper {
         box-shadow: 15px 15px 30px 0 #ebebeb80;
         background-color: #fff;
         border-bottom-left-radius: 35px;
         border-bottom-right-radius: 35px;
         position: relative; 
+        margin: 0 auto;
+        overflow: hidden;
       }
       
-      .product-wrapper {
+      .custom-product-wrapper {
         display: flex;
-        overflow-x: auto;
-      }
-      
-      .product-item {
-        min-width: 200px;
-        z-index: 1;
-        font-family: Poppins, cursive;
-        font-size: 12px;
-        padding: 5px;
-        color: #7d7d7d;
-        
-        border: 1px solid #ededed;
-        border-radius: 10px;
+        overflow: hidden;
         position: relative;
-        text-decoration: none;
-        background-color: #fff;
+        gap: 0; 
+
       }
       
-      .product-item__img {
-        position: relative;
-        display: block;
-        width: 100%;
-        background-color: #fff;
-        margin-bottom: 10px;
-        text-align: center;
+      .custom-product-item {
+         min-width: 220px;
+         max-width: 220px;
+         height: 100%;
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
+         font-family: Poppins, cursive;
+         font-size: 12px;
+         color: #7d7d7d;
+         border: 1px solid #ededed;
+         border-radius: 10px;
+         background-color: #fff;
+         margin-right: 10px;
+         position: relative;
       }
       
-      .product-item__img img {
-        width: 100%;
-        height: auto;
-        border-radius: 8px;
+      .custom-product-item__img {
+          width: 100%;
+          height: 180px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 10px;
+          background-color: #fff;
       }
-        .product-item__brand {
-       font-size: 1.2rem;
+      
+      .custom-product-item__img img {
+         max-height: 100%;
+         max-width: 100%;
+         object-fit: contain;
+      }
+        .custom-product-item__brand {
+       font-size: 1.1rem;
        height: 42px;
        overflow: hidden;
-       margin-bottom: 10px;
+       margin-bottom: 8px;
 }
       
-      .product-item-content {
+      .custom-product-item-content {
         padding: 0 10px 10px;
         box-sizing: border-box;
       }
@@ -228,29 +273,48 @@ document.head.appendChild(fontAwesome);
       .heart:hover #default-favorite {
          display: none;
 }
-
-      .product-item__old-price {
+       .custom-price-discount {
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 5px;
+          min-height: 22px;
+}
+      .custom-product-item__old-price {
           font-size: 1.4rem;
           font-weight: 500;
           text-decoration: line-through;
+          color: #7d7d7d;
+
   }
 
-      .product-item__percent {
+      .custom-product-item__percent {
           color: #00a365;
-          font-size: 18px;
+          font-size: 1.4rem;
           font-weight: 700;
           display: inline-flex;
           justify-content: center;
-          margin-left: 10px;
+          margin-top: 2px;
+  }
+      .custom-product-item__percent .percent_icon {
+          display: inline-block;
+           height: 22px;
+          font-size: 22px;
+          margin-left: 3px;
+          
   }
 
-      .product-item__new-price {
+      .custom-product-item__price {
           display: block;
           width: 100%;
           font-size: 2.2rem;
           font-weight: 600;
-  }
-
+          
+  } 
+      .custom-product-item__price--new-price {
+      color: #00a365;
+      }
       .close-btn {
         width: 100%;
         padding: 15px 20px;
@@ -275,6 +339,10 @@ document.head.appendChild(fontAwesome);
         border-top-right-radius: 35px;
         font-family: Quicksand-Bold;
         font-weight: 700;
+        overflow: visible;
+        padding: 25px 60px;
+        position: relative;
+
       }
       
       .title-primary {
@@ -285,22 +353,67 @@ document.head.appendChild(fontAwesome);
         color: #f28e00;
         margin: 0 0 20px 0;
       }
+        .banner__wrapper {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .swiper-prev,
+        .swiper-next {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+          background-color: #fef6eb;
+          background-size: 20px;
+          background-repeat: no-repeat;
+          background-position: center;
+          box-shadow: 0 2px 6px #00000033;
+          border: none;
+          cursor: pointer;
+}
+
+        .swiper-prev {
+          left: -25px;
+          background-image: url("https://www.e-bebek.com/assets/svg/prev.svg");
+        }
+
+        .swiper-next {
+          right: -25px;
+          background-image: url("https://www.e-bebek.com/assets/svg/next.svg");
+        }
+
       
       @media (max-width: 768px) {
         .title-primary {
           font-size: 1.5rem;
         }
         
-        .product-item {
+        .custom-product-item {
           min-width: 160px;
         }
       }
+
     `;
     
     const style = document.createElement("style");
     style.innerHTML = css;
     document.head.appendChild(style);
   };
+  
+  const updateVisibleSlides = (wrapper, start) => {
+  const items = wrapper.querySelectorAll(".custom-product-item");
+  items.forEach((item, index) => {
+    if (index >= start && index < start + 5) {
+      item.style.display = "inline-block";
+    } else {
+      item.style.display = "none";
+    }
+  });
+};
 
   const setEvents = () => {
      document.querySelectorAll(".heart").forEach((heart) => {
@@ -325,7 +438,9 @@ document.head.appendChild(fontAwesome);
         location.reload();
       });
     });
-  };
+};
+
+  
 
   init();
 })();
