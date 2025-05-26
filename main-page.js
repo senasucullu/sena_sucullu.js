@@ -61,7 +61,6 @@
     const isFavorite = favorites.includes(product.url);
 
     return `
-      <div class="container">
       <div class="product-item">
         <a class="product-item__img" href="${product.url}" target="_blank">
           <div class="heart" data-url="${product.url}">
@@ -81,7 +80,16 @@
           <h2 class="product-item__brand">
             <b>${product.brand} - </b><span>${product.name}</span>
           </h2>
+          <div class="stars-wrapper">
+          <i class="fa fa-star gray-star"></i>
+          <i class="fa fa-star gray-star"></i>
+          <i class="fa fa-star gray-star"></i>
+          <i class="fa fa-star gray-star"></i>
+          <i class="fa fa-star gray-star"></i>
         </div>
+        </div>
+
+
           <div class="product-item__price">
             ${
               hasDiscount
@@ -99,23 +107,19 @@
           <button class="close-btn">Sepete Ekle</button>
         
       </div>
-      </div>
     `;
   }).join("");
 };
-
+  
+const fontAwesome = document.createElement("link");
+fontAwesome.rel = "stylesheet";
+fontAwesome.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
+document.head.appendChild(fontAwesome);
 
 
   const buildCSS = () => {
     const css = `
-      .container {
-        width: 100%;
-        padding-right: 15px;
-        padding-left: 15px;
-        margin-right: auto;
-        margin-left: auto;
-      }
-      
+
       .banner__wrapper {
         box-shadow: 15px 15px 30px 0 #ebebeb80;
         background-color: #fff;
@@ -126,10 +130,7 @@
       
       .product-wrapper {
         display: flex;
-        gap: 20px;
-        margin-top: 20px;
         overflow-x: auto;
-        padding-bottom: 15px;
       }
       
       .product-item {
@@ -184,11 +185,17 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
       }
-      .product-item-content .stars-wrapper {
-        --cx-color-primary: #fed100;
-        --cx-color-light: #d7d7d7;
-        padding: 5px 0 15px;
-}
+      .stars-wrapper {
+        display: flex;
+        gap: 3px;
+        margin: 5px 0;
+     }
+
+      .gray-star {
+        color: #d7d7d7;
+        font-size: 16px;
+      }
+
       .heart {
         position: absolute;
         top: 10px;
@@ -264,12 +271,10 @@
         display: flex;
         flex-direction: column;
         background-color: #fef6eb;
-        padding: 25px;
         border-top-left-radius: 35px;
         border-top-right-radius: 35px;
         font-family: Quicksand-Bold;
         font-weight: 700;
-        margin-bottom: 20px;
       }
       
       .title-primary {
